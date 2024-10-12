@@ -1,0 +1,138 @@
+@import url('https://fonts.googleapis.com/css2?family=Red+Hat+Text:ital,wght@0,300..700;1,300..700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    text-decoration: none;
+    border: none;
+    outline: none;
+    scroll-behavior: smooth;
+    font-family: 'Red Hat Text', 'sans-serif';
+}
+
+:root {
+    --red: hsl(14, 86%, 42%);
+    --green: hsl(159, 69%, 38%);
+    --Rose-50: hsl(20, 50%, 98%);
+    --Rose-100: hsl(13, 31%, 94%);
+    --Rose-300: hsl(14, 25%, 72%);
+    --Rose-400: hsl(7, 20%, 60%);
+    --Rose-500: hsl(12, 20%, 44%);
+    --Rose-900: hsl(14, 65%, 9%);
+}
+
+body {
+    background: var(--Rose-100);
+    display: flex;
+    justify-content: space-between;
+}
+
+.dessert {
+    flex: 2;
+    margin-top: 3.5rem;
+    margin-left: 5rem;
+    margin-bottom: 5rem;
+}
+
+.dessert h2 {
+    margin-bottom: 1.5rem;
+    font-size: 2.6rem;
+}
+
+.dessert-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: center;
+    gap: 2.5rem;
+}
+
+.dessert-box {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.dessert-box img {
+    width: 90%;
+    border-radius: 1rem;
+    margin-bottom: 2rem;
+}
+
+.add-to-cart-btn img {
+    position: absolute;
+    width: 15%;
+    top: 20%;
+    left: 15%;
+}
+
+.add-to-cart-btn {
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    top: 65%;
+    left: 10%;
+    background-color: white;
+    border-radius: 100px;
+    display: flex;
+    cursor: pointer;
+    color: #000000;
+    font-weight: bold;
+    width: 70%;
+    height: 13%;
+}
+
+.add-to-cart-btn:hover {
+    background-color: var(--Rose-100);
+}
+
+.cart {
+    flex: 1;
+    margin-top: 5rem;
+    margin-right: 5rem;
+    padding: 1rem;
+    background-color: #f9f9f9;
+}
+
+.cart-items {
+    
+}
+
+.cart-empty {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.empty-cart-img {
+    width: 200px;
+    margin-bottom: 1rem;
+}
+
+.empty-cart-text {
+    font-size: 1.2rem;
+    color: #888;
+}
+
+.cart-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.confirm-order-btn,
+.reset-order-btn {
+    padding: 0.5rem 1rem;
+    background-color: #63563f;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.confirm-order-btn:hover,
+.reset-order-btn:hover {
+    background-color: #836f4f;
+}
