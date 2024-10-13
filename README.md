@@ -1,6 +1,6 @@
 # Product-list-with-cart
 
-## Product List with Functional Cart - README
+## Product List with Functional Cart - STATUS[IN PROGRESS]
 
 ### Overview
 This project implements a dynamic product list with a functional shopping cart. The application allows users to browse products, add items to the cart, manage item quantities, and confirm their order. The project also supports full keyboard navigation and adapts to various screen sizes for a responsive and accessible user experience.
@@ -14,5 +14,4 @@ This project implements a dynamic product list with a functional shopping cart. 
 - **Responsive Design**: The layout adjusts for optimal viewing on various device screen sizes, ensuring usability across desktop, tablet, and mobile devices.
 - **Hover and Focus States**: Interactive elements display hover and focus states for improved usability and accessibility.
 
-### Project Status
-**In Progress**
+
