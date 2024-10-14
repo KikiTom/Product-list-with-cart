@@ -40,9 +40,6 @@ function updateCartDisplay(productName) {
     }
 
     // Alert for the added product
-    if (productName) {
-        alert(`${productName} has been added to your cart!`);
-    }
 }
 
 // Call updateCart() initially to check if the cart is empty
@@ -62,11 +59,24 @@ fetch('./data.json')
             dessertBox.classList.add('dessert-box');
 
             dessertBox.innerHTML = `
-        <img src="${product.image.desktop}" alt="${product.name}">
-        <button class="add-to-cart-btn"> <img src="Assets/images/icon-add-to-cart.svg" alt=""> Add to Cart</button>
-        <p class="dessert-name">${product.category}</p>
-        <h3 class="dessert-type">${product.name}</h3>
-        <h3 class="price">$${product.price.toFixed(2)}</h3>
+            <div id="img-btn">
+                <img src="${product.image.desktop}" alt="${product.name}">
+                <button class="add-to-cart-btn"> 
+                    <img src="Assets/images/icon-add-to-cart.svg" alt=""> 
+                    <span class="label">Add to Cart</span>
+                </button>
+                <button class="add-to-quantity-btn">
+                    <box-icon name='minus-circle' id = "quantity-btn"></box-icon>
+                    <span class="label">1</span>
+                    <box-icon name='plus-circle' id = "quantity-btn"></box-icon>   
+                </button>
+            </div>
+
+            <div id="Description-product">
+                <p class="dessert-name">${product.category}</p>
+                <h3 class="dessert-type">${product.name}</h3>
+                <h3 class="price">$${product.price.toFixed(2)}</h3>
+            </div>
       `;
 
             // Add event listener to the "Add to Cart" button
