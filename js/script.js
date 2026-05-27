@@ -1,4 +1,3 @@
-
 let cart = [];
 
 // Function to update cart display
@@ -44,6 +43,14 @@ function updateCartDisplay(productName) {
 
 // Call updateCart() initially to check if the cart is empty
 
+/**
+ * Menghapus item dari cart berdasarkan nama produk.
+ * @param {string} productName - Nama produk yang akan dihapus dari cart.
+ */
+function removeFromCart(productName) {
+    cart = cart.filter(item => item.name !== productName);
+    updateCartDisplay();
+}
 
 // Fetch the product data from data.json
 fetch('./data.json')
