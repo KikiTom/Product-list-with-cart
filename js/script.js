@@ -25,11 +25,12 @@ function updateCartDisplay(productName) {
 
             const cartItem = document.createElement('cart-items');
             cartItem.classList.add('cart-item');
+            cartItem.dataset.name = item.name; // Store product name for event delegation
             cartItem.innerHTML = `
               <p>${item.name}</p>
               <p>Quantity: ${item.quantity}</p>
               <p>$${(item.price * item.quantity).toFixed(2)}</p>
-              <button onclick="removeFromCart('${item.name}')">Remove</button>
+              <button class="remove-btn">Remove</button>
             `;
             cartContainer.appendChild(cartItem);
         });
@@ -41,16 +42,18 @@ function updateCartDisplay(productName) {
     // Alert for the added product
 }
 
-// Call updateCart() initially to check if the cart is empty
-
-/**
- * Menghapus item dari cart berdasarkan nama produk.
- * @param {string} productName - Nama produk yang akan dihapus dari cart.
- */
-function removeFromCart(productName) {
-    cart = cart.filter(item => item.name !== productName);
-    updateCartDisplay();
-}
+// Event delegation: handle remove button clicks on cart container
+document.addEventListener('click', function(event) {
+    const removeBtn = event.target.closest('.remove-btn');
+    if (removeBtn) {
+        const cartItem = removeBtn.closest('.cart-item');
+        if (cartItem) {
+            const productName = cartItem.dataset.name;
+            cart = cart.filter(item => item.name !== productName);
+            updateCartDisplay();
+        }
+    }
+});
 
 // Fetch the product data from data.json
 fetch('./data.json')
