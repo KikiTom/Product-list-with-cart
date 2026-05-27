@@ -1,5 +1,17 @@
 let cart = [];
 
+// Helper: safely encode HTML entities in a string for use in attribute values
+function encodeAttr(str) {
+    return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// Helper: safely encode HTML entities for use in text content (prevents XSS via innerHTML)
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
 // Function to update cart display
 function updateCartDisplay() {
     const cartContainer = document.querySelector('.cart-items');
@@ -30,24 +42,60 @@ function updateCartDisplay() {
 
             const cartItem = document.createElement('div');
             cartItem.classList.add('cart-item');
-            cartItem.innerHTML = `
-              <div class="cart-item-info">
-                <p class="cart-item-name">${item.name}</p>
-                <div class="cart-item-details">
-                  <span class="cart-item-quantity">${item.quantity}x</span>
-                  <span class="cart-item-price">@ $${item.price.toFixed(2)}</span>
-                  <span class="cart-item-subtotal">$${(item.price * item.quantity).toFixed(2)}</span>
-                </div>
-              </div>
-              <button class="cart-item-remove" onclick="removeFromCart('${item.name}')" aria-label="Remove ${item.name}">
-                <img src="Assets/images/icon-remove-item.svg" alt="">
-              </button>
-            `;
+
+            // Build DOM safely — avoid innerHTML with unsanitized data
+            const infoDiv = document.createElement('div');
+            infoDiv.classList.add('cart-item-info');
+
+            const nameP = document.createElement('p');
+            nameP.classList.add('cart-item-name');
+            nameP.textContent = item.name;
+
+            const detailsDiv = document.createElement('div');
+            detailsDiv.classList.add('cart-item-details');
+
+            const qtySpan = document.createElement('span');
+            qtySpan.classList.add('cart-item-quantity');
+            qtySpan.textContent = `${item.quantity}x`;
+
+            const priceSpan = document.createElement('span');
+            priceSpan.classList.add('cart-item-price');
+            priceSpan.textContent = `@ $${item.price.toFixed(2)}`;
+
+            const subtotalSpan = document.createElement('span');
+            subtotalSpan.classList.add('cart-item-subtotal');
+            subtotalSpan.textContent = `$${(item.price * item.quantity).toFixed(2)}`;
+
+            detailsDiv.appendChild(qtySpan);
+            detailsDiv.appendChild(priceSpan);
+            detailsDiv.appendChild(subtotalSpan);
+
+            infoDiv.appendChild(nameP);
+            infoDiv.appendChild(detailsDiv);
+
+            // Remove button — use dataset + event listener instead of onclick
+            const removeBtn = document.createElement('button');
+            removeBtn.classList.add('cart-item-remove');
+            removeBtn.dataset.product = item.name;
+            removeBtn.setAttribute('aria-label', `Remove ${encodeAttr(item.name)}`);
+
+            const removeImg = document.createElement('img');
+            removeImg.src = 'Assets/images/icon-remove-item.svg';
+            removeImg.alt = '';
+            removeBtn.appendChild(removeImg);
+
+            // Event listener for remove
+            removeBtn.addEventListener('click', () => {
+                removeFromCart(item.name);
+            });
+
+            cartItem.appendChild(infoDiv);
+            cartItem.appendChild(removeBtn);
             cartContainer.appendChild(cartItem);
         });
 
         // Update total
-        document.querySelector('.cart-summary .cart-total').innerText = `$${total.toFixed(2)}`;
+        document.querySelector('.cart-summary .cart-total').textContent = `$${total.toFixed(2)}`;
     }
 }
 
@@ -111,16 +159,38 @@ function showConfirmModal() {
         total += item.price * item.quantity;
         const itemEl = document.createElement('div');
         itemEl.classList.add('modal-item');
-        itemEl.innerHTML = `
-          <div class="modal-item-info">
-            <p class="modal-item-name">${item.name}</p>
-            <div class="modal-item-details">
-              <span class="modal-item-quantity">${item.quantity}x</span>
-              <span class="modal-item-price">@ $${item.price.toFixed(2)}</span>
-            </div>
-          </div>
-          <span class="modal-item-subtotal">$${(item.price * item.quantity).toFixed(2)}</span>
-        `;
+
+        // Build modal item safely — avoid innerHTML with unsanitized data
+        const infoDiv = document.createElement('div');
+        infoDiv.classList.add('modal-item-info');
+
+        const nameP = document.createElement('p');
+        nameP.classList.add('modal-item-name');
+        nameP.textContent = item.name;
+
+        const detailsDiv = document.createElement('div');
+        detailsDiv.classList.add('modal-item-details');
+
+        const qtySpan = document.createElement('span');
+        qtySpan.classList.add('modal-item-quantity');
+        qtySpan.textContent = `${item.quantity}x`;
+
+        const priceSpan = document.createElement('span');
+        priceSpan.classList.add('modal-item-price');
+        priceSpan.textContent = `@ $${item.price.toFixed(2)}`;
+
+        detailsDiv.appendChild(qtySpan);
+        detailsDiv.appendChild(priceSpan);
+
+        infoDiv.appendChild(nameP);
+        infoDiv.appendChild(detailsDiv);
+
+        const subtotalSpan = document.createElement('span');
+        subtotalSpan.classList.add('modal-item-subtotal');
+        subtotalSpan.textContent = `$${(item.price * item.quantity).toFixed(2)}`;
+
+        itemEl.appendChild(infoDiv);
+        itemEl.appendChild(subtotalSpan);
         modalItems.appendChild(itemEl);
     });
 
@@ -168,39 +238,80 @@ fetch('./data.json')
             const dessertBox = document.createElement('div');
             dessertBox.classList.add('dessert-box');
 
-            dessertBox.innerHTML = `
-            <div id="img-btn">
-                <img src="${product.image.desktop}" alt="${product.name}">
-                <button class="add-to-cart-btn" tabindex="0"> 
-                    <img src="Assets/images/icon-add-to-cart.svg" alt=""> 
-                    <span class="label">Add to Cart</span>
-                </button>
-                <div class="add-to-quantity-btn">
-                    <button class="qty-btn minus-btn" aria-label="Decrease quantity">
-                        <img src="Assets/images/icon-decrement-quantity.svg" alt="">
-                    </button>
-                    <span class="label">1</span>
-                    <button class="qty-btn plus-btn" aria-label="Increase quantity">
-                        <img src="Assets/images/icon-increment-quantity.svg" alt="">
-                    </button>   
-                </div>
-            </div>
+            // Build product card safely — avoid innerHTML with unsanitized data
+            const imgBtnDiv = document.createElement('div');
+            imgBtnDiv.id = 'img-btn';
 
-            <div id="Description-product">
-                <p class="dessert-name">${product.category}</p>
-                <h3 class="dessert-type">${product.name}</h3>
-                <h3 class="price">$${product.price.toFixed(2)}</h3>
-            </div>
-            `;
+            const img = document.createElement('img');
+            img.src = product.image.desktop;
+            img.alt = product.name;
+            imgBtnDiv.appendChild(img);
+
+            const addBtn = document.createElement('button');
+            addBtn.classList.add('add-to-cart-btn');
+            addBtn.tabIndex = 0;
+            const addBtnImg = document.createElement('img');
+            addBtnImg.src = 'Assets/images/icon-add-to-cart.svg';
+            addBtnImg.alt = '';
+            addBtn.appendChild(addBtnImg);
+            const addBtnSpan = document.createElement('span');
+            addBtnSpan.classList.add('label');
+            addBtnSpan.textContent = 'Add to Cart';
+            addBtn.appendChild(addBtnSpan);
+            imgBtnDiv.appendChild(addBtn);
+
+            const qtyBtnDiv = document.createElement('div');
+            qtyBtnDiv.classList.add('add-to-quantity-btn');
+            const minusBtn = document.createElement('button');
+            minusBtn.classList.add('qty-btn', 'minus-btn');
+            minusBtn.setAttribute('aria-label', 'Decrease quantity');
+            const minusImg = document.createElement('img');
+            minusImg.src = 'Assets/images/icon-decrement-quantity.svg';
+            minusImg.alt = '';
+            minusBtn.appendChild(minusImg);
+            qtyBtnDiv.appendChild(minusBtn);
+
+            const qtyLabel = document.createElement('span');
+            qtyLabel.classList.add('label');
+            qtyLabel.textContent = '1';
+            qtyBtnDiv.appendChild(qtyLabel);
+
+            const plusBtn = document.createElement('button');
+            plusBtn.classList.add('qty-btn', 'plus-btn');
+            plusBtn.setAttribute('aria-label', 'Increase quantity');
+            const plusImg = document.createElement('img');
+            plusImg.src = 'Assets/images/icon-increment-quantity.svg';
+            plusImg.alt = '';
+            plusBtn.appendChild(plusImg);
+            qtyBtnDiv.appendChild(plusBtn);
+            imgBtnDiv.appendChild(qtyBtnDiv);
+
+            dessertBox.appendChild(imgBtnDiv);
+
+            const descDiv = document.createElement('div');
+            descDiv.id = 'Description-product';
+
+            const categoryP = document.createElement('p');
+            categoryP.classList.add('dessert-name');
+            categoryP.textContent = product.category;
+            descDiv.appendChild(categoryP);
+
+            const nameH3 = document.createElement('h3');
+            nameH3.classList.add('dessert-type');
+            nameH3.textContent = product.name;
+            descDiv.appendChild(nameH3);
+
+            const priceH3 = document.createElement('h3');
+            priceH3.classList.add('price');
+            priceH3.textContent = `$${product.price.toFixed(2)}`;
+            descDiv.appendChild(priceH3);
+
+            dessertBox.appendChild(descDiv);
 
             // Add event listener to the "Add to Cart" button
-            const addToCartBtn = dessertBox.querySelector('.add-to-cart-btn');
-            addToCartBtn.addEventListener('click', () => addToCart(product));
+            addBtn.addEventListener('click', () => addToCart(product));
 
             // Add event listeners for quantity buttons
-            const minusBtn = dessertBox.querySelector('.minus-btn');
-            const plusBtn = dessertBox.querySelector('.plus-btn');
-
             minusBtn.addEventListener('click', () => {
                 const cartItem = cart.find(item => item.name === product.name);
                 if (cartItem) {
@@ -253,50 +364,21 @@ fetch('./data.json')
         };
 
         // Function to handle adding products to the cart
-        const addToCart = (product) => {
-            const cartItem = cart.find(item => item.name === product.name);
-            if (cartItem) {
-                cartItem.quantity += 1;
+        function addToCart(product) {
+            const existingItem = cart.find(item => item.name === product.name);
+            if (existingItem) {
+                existingItem.quantity += 1;
             } else {
                 cart.push({ ...product, quantity: 1 });
             }
             updateCartDisplay();
             toggleQuantityButtons(product.name, cart.find(item => item.name === product.name).quantity);
-        };
+        }
 
-        // Load the first set of products and add the scroll event listener
+        // Initial load
         loadMoreProducts();
+
+        // Attach scroll listener
         window.addEventListener('scroll', handleScroll);
     })
-    .catch(error => console.error('Error fetching data:', error));
-
-// Event listeners for confirm order and reset order (delegated since buttons exist in DOM)
-document.addEventListener('DOMContentLoaded', () => {
-    // Confirm order button
-    const confirmOrderBtn = document.querySelector('.confirm-order-btn');
-    if (confirmOrderBtn) {
-        confirmOrderBtn.addEventListener('click', showConfirmModal);
-    }
-
-    // Start New Order button (in cart summary)
-    const resetOrderBtn = document.querySelector('.reset-order-btn');
-    if (resetOrderBtn) {
-        resetOrderBtn.addEventListener('click', resetOrder);
-    }
-
-    // Start New Order button (in modal)
-    const modalResetBtn = document.querySelector('.modal-reset-btn');
-    if (modalResetBtn) {
-        modalResetBtn.addEventListener('click', resetOrder);
-    }
-
-    // Close modal when clicking overlay
-    const modal = document.getElementById('confirm-modal');
-    if (modal) {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                hideConfirmModal();
-            }
-        });
-    }
-});
+    .catch(error => console.error('Error loading product data:', error));
