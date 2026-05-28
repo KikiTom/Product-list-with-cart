@@ -104,7 +104,7 @@
                 skipLog('TC-2.2: Option values are correct', 'Cannot test - #sort-select not found');
                 return;
             }
-            const expectedValues = ['default', 'price-asc', 'price-desc', 'name-asc', 'name-desc'];
+            const expectedValues = ['default', 'price-low-high', 'price-high-low', 'name-a-z', 'name-z-a'];
             const options = Array.from(select.querySelectorAll('option'));
             const actualValues = options.map(opt => opt.value);
             const match = JSON.stringify(actualValues.sort()) === JSON.stringify(expectedValues.sort());
@@ -137,7 +137,7 @@
                 skipLog('TC-3.1: Price Low→High sort', 'Cannot test - #sort-select not found');
                 return;
             }
-            select.value = 'price-asc';
+            select.value = 'price-low-high';
             select.dispatchEvent(new Event('change'));
             
             const prices = Array.from(document.querySelectorAll('.price')).map(el => 
@@ -157,7 +157,7 @@
                 skipLog('TC-3.2: Price High→Low sort', 'Cannot test - #sort-select not found');
                 return;
             }
-            select.value = 'price-desc';
+            select.value = 'price-high-low';
             select.dispatchEvent(new Event('change'));
             
             const prices = Array.from(document.querySelectorAll('.price')).map(el => 
@@ -177,7 +177,7 @@
                 skipLog('TC-3.3: Name A-Z sort', 'Cannot test - #sort-select not found');
                 return;
             }
-            select.value = 'name-asc';
+            select.value = 'name-a-z';
             select.dispatchEvent(new Event('change'));
             
             const names = Array.from(document.querySelectorAll('.dessert-type')).map(el => el.textContent);
@@ -195,7 +195,7 @@
                 skipLog('TC-3.4: Name Z-A sort', 'Cannot test - #sort-select not found');
                 return;
             }
-            select.value = 'name-desc';
+            select.value = 'name-z-a';
             select.dispatchEvent(new Event('change'));
             
             const names = Array.from(document.querySelectorAll('.dessert-type')).map(el => el.textContent);
@@ -217,7 +217,7 @@
             const originalNames = Array.from(document.querySelectorAll('.dessert-type')).map(el => el.textContent);
             
             // Sort differently
-            select.value = 'price-asc';
+            select.value = 'price-low-high';
             select.dispatchEvent(new Event('change'));
             
             // Back to default
@@ -245,7 +245,7 @@
             searchInput.dispatchEvent(new Event('input'));
             
             // Then sort by price
-            select.value = 'price-asc';
+            select.value = 'price-low-high';
             select.dispatchEvent(new Event('change'));
             
             const products = Array.from(document.querySelectorAll('.dessert-type'));
@@ -275,7 +275,7 @@
             // Monitor for navigation
             window.addEventListener('beforeunload', () => { reloaded = true; });
             
-            select.value = 'price-asc';
+            select.value = 'price-low-high';
             select.dispatchEvent(new Event('change'));
             
             // Check if URL changed
@@ -295,7 +295,7 @@
                 return;
             }
             
-            select.value = 'price-asc';
+            select.value = 'price-low-high';
             select.dispatchEvent(new Event('change'));
             
             const sortInStorage = localStorage.getItem('sortOption') || 

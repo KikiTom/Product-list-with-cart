@@ -236,8 +236,34 @@ function addToCart(product, dessertBox) {
     updateCartDisplay();
 }
 
-// Function to render products based on search query
-function renderProducts(query) {
+// Pure function to sort products based on sort option
+function sortProducts(products, sortOption) {
+    const sorted = [...products]; // Create a copy to avoid mutating original
+    
+    switch (sortOption) {
+        case 'price-low-high':
+            sorted.sort((a, b) => a.price - b.price);
+            break;
+        case 'price-high-low':
+            sorted.sort((a, b) => b.price - a.price);
+            break;
+        case 'name-a-z':
+            sorted.sort((a, b) => a.name.localeCompare(b.name));
+            break;
+        case 'name-z-a':
+            sorted.sort((a, b) => b.name.localeCompare(a.name));
+            break;
+        case 'default':
+        default:
+            // Keep original order
+            break;
+    }
+    
+    return sorted;
+}
+
+// Function to render products based on search query and sort option
+function renderProducts(query, sortOption) {
     const dessertContainer = document.getElementById('dessert-container');
     dessertContainer.innerHTML = '';
 
@@ -247,8 +273,11 @@ function renderProducts(query) {
         )
         : allProducts;
 
+    // Apply sorting
+    const sortedProducts = sortProducts(filteredProducts, sortOption || 'default');
+
     const fragment = document.createDocumentFragment();
-    filteredProducts.forEach(product => {
+    sortedProducts.forEach(product => {
         const productCard = createProductCard(product);
 
         // Restore cart state for this product if it exists in cart
@@ -277,8 +306,18 @@ fetch('./data.json')
         // Search input event listener
         const searchInput = document.getElementById('search-input');
         searchInput.addEventListener('input', (e) => {
-            renderProducts(e.target.value);
+            const sortSelect = document.getElementById('sort-select');
+            renderProducts(e.target.value, sortSelect ? sortSelect.value : 'default');
         });
+
+        // Sort select event listener
+        const sortSelect = document.getElementById('sort-select');
+        if (sortSelect) {
+            sortSelect.addEventListener('change', (e) => {
+                const searchInput = document.getElementById('search-input');
+                renderProducts(searchInput ? searchInput.value : '', e.target.value);
+            });
+        }
 
         // Confirm order button
         document.querySelector('.confirm-order-btn').addEventListener('click', () => {

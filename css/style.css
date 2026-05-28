@@ -342,6 +342,41 @@ body {
     display: none;
 }
 
+/* Sort Container Styling */
+.sort-container {
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sort-container label {
+    color: var(--Rose-500);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.sort-select {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--Rose-300);
+    border-radius: 100px;
+    background-color: #ffffff;
+    color: var(--Rose-900);
+    font-size: 0.9rem;
+    font-family: 'Red Hat Text', 'sans-serif';
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sort-select:hover {
+    border-color: var(--Rose-400);
+}
+
+.sort-select:focus {
+    outline: none;
+    border-color: var(--red);
+}
+
 /* Modal Overlay */
 .modal-overlay {
     display: none;
