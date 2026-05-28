@@ -41,6 +41,61 @@ body {
     font-size: 2.6rem;
 }
 
+/* Search Container - Glassmorphism */
+.search-container {
+    position: relative;
+    margin-bottom: 1.5rem;
+    margin-left: 0.8rem;
+    margin-right: 0.8rem;
+}
+
+.search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    color: var(--Rose-400);
+    pointer-events: none;
+    transition: color 0.3s ease;
+    z-index: 1;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.8rem 1rem 0.8rem 2.8rem;
+    font-size: 1rem;
+    color: var(--Rose-900);
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 14px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.search-input::placeholder {
+    color: var(--Rose-300);
+    font-style: italic;
+}
+
+.search-input:hover {
+    background: rgba(255, 255, 255, 0.75);
+    border-color: var(--Rose-300);
+}
+
+.search-input:focus {
+    background: rgba(255, 255, 255, 0.85);
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(214, 72, 36, 0.15), 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.search-input:focus ~ .search-icon,
+.search-container:focus-within .search-icon {
+    color: var(--red);
+}
+
 .dessert-container {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
