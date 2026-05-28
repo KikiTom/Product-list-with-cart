@@ -19,6 +19,13 @@
     <div class="search-container">
       <i class='bx bx-search search-icon'></i>
       <input type="text" id="search-input" class="search-input" placeholder="Search desserts...">
+      <select id="sort-select" class="sort-select">
+        <option value="default">Default</option>
+        <option value="price-low-high">Price: Low to High</option>
+        <option value="price-high-low">Price: High to Low</option>
+        <option value="name-a-z">Name: A-Z</option>
+        <option value="name-z-a">Name: Z-A</option>
+      </select>
     </div>
     <div class="dessert-container" id="dessert-container">
       <!-- Products will be loaded here dynamically -->
