@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sort Dropdown Tests</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-suite { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .test-case { margin: 10px 0; padding: 10px; background: #f5f5f5; }
+        .pass { color: green; font-weight: bold; }
+        .fail { color: red; font-weight: bold; }
+        .skip { color: orange; font-weight: bold; }
+        #results { margin-top: 20px; }
+        .summary { font-size: 18px; font-weight: bold; margin: 20px 0; padding: 15px; background: #333; color: white; }
+    </style>
+</head>
+<body>
+    <h1>Sort Dropdown Verification Tests</h1>
+    <p>Open this file in browser while the main product list app is running.</p>
+    
+    <div class="summary" id="summary">Tests not run yet</div>
+    <button onclick="runAllTests()">Run All Tests</button>
+    
+    <div id="results"></div>
+
+    <script>
+        const testResults = [];
+        
+        function log(testName, passed, message) {
+            testResults.push({ testName, passed, message });
+            const div = document.createElement('div');
+            div.className = 'test-case';
+            div.innerHTML = `<span class="${passed ? 'pass' : 'fail'}">${passed ? '✓ PASS' : '✗ FAIL'}</span> - ${testName}: ${message}`;
+            document.getElementById('results').appendChild(div);
+        }
+
+        function skipLog(testName, message) {
+            testResults.push({ testName, passed: null, message });
+            const div = document.createElement('div');
+            div.className = 'test-case';
+            div.innerHTML = `<span class="skip">⊘ SKIP</span> - ${testName}: ${message}`;
+            document.getElementById('results').appendChild(div);
+        }
+
+        // ============================================
+        // TEST SUITE 1: Dropdown Exists & Visible
+        // ============================================
+        function testDropdownExists() {
+            const select = document.querySelector('#sort-select');
+            if (!select) {
+                log('TC-1.1: Sort select element exists', false, 'Element #sort-select NOT FOUND in DOM');
+                return false;
+            }
+            log('TC-1.1: Sort select element exists', true, 'Found #sort-select in DOM');
+            return true;
+        }
+
+        function testDropdownVisible() {
+            const select = document.querySelector('#sort-select');
+            if (!select) {
+                skipLog('TC-1.2: Dropdown is visible', 'Cannot test - #sort-select not found');
+                return;
+            }
+            const style = window.getComputedStyle(select);
+            const isVisible = style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
+            log('TC-1.2: Dropdown is visible', isVisible, isVisible ? 'Element is visible' : 'Element is hidden');
+        }
+
+        function testDropdownPosition() {
+            const select = document.querySelector('#sort-select');
+            if (!select) {
+                skipLog('TC-1.3: Dropdown above product grid', 'Cannot test - #sort-select not found');
+                return;
+            }
+            const container = document.querySelector('#dessert-container');
+            if (!container) {
+                skipLog('TC-1.3: Dropdown above product grid', 'Cannot test - #dessert-container not found');
+                return;
+            }
+            const selectRect = select.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+            const isAbove = selectRect.top < containerRect.top;
+            log('TC-1.3: Dropdown above product grid', isAbove, isAbove ? 'Dropdown is above product grid' : 'Dropdown is NOT above product grid');
+        }
+
+        // ============================================
+        // TEST SUITE 2: Options Complete
+        // ============================================
+        function testDropdownOptions() {
+            const select = document.querySelector('#sort-select');
+            if (!select) {
+                skipLog('TC-2.1: Dropdown has 5 options', 'Cannot test - #sort-select not found');
+                return;
+            }
+            const options = select.querySelectorAll('option');
+            const hasFive = options.length === 5;
+            log('TC-2.1: Dropdown has 5 options', hasFive, `Found ${options.length} options, expected 5`);
+        }
+
+        function testOptionValues() {
+            const select = document.querySelector('#sort-select');
+            if (!select) {
+                skipLog('TC-2.2: Option values are correct', 'Cannot test - #sort-select not found');
+                return;
+            }
+            const expectedValues = ['default', 'price-asc', 'price-desc', 'name-asc', 'name-desc'];
+            const options = Array.from(select.querySelectorAll('option'));
+            const actualValues = options.map(opt => opt.value);
+            const match = JSON.stringify(actualValues.sort()) === JSON.stringify(expectedValues.sort());
+            log('TC-2.2: Option values are correct', match, `Values: ${actualValues.join(', ')}`);
+        }
+
+        function testOptionTexts() {
+            const select = document.querySelector('#sort-select');
+            if (!select) {
+                skipLog('TC-2.3: Option texts are correct', 'Cannot test - #sort-select not found');
+                return;
+            }
+            const options = Array.from(select.querySelectorAll('option'));
+            const texts = options.map(opt => opt.textContent.trim());
+            const hasPriceLow = texts.some(t => /price.*low/i.test(t));
+            const hasPriceHigh = texts.some(t => /price.*high/i.test(t));
+            const hasNameAZ = texts.some(t => /name.*a.*z/i.test(t));
+            const hasNameZA = texts.some(t => /name.*z.*a/i.test(t));
+            const hasDefault = texts.some(t => /default/i.test(t));
+            const allCorrect = hasPriceLow && hasPriceHigh && hasNameAZ && hasNameZA && hasDefault;
+            log('TC-2.3: Option texts are correct', allCorrect, `Texts: ${texts.join(', ')}`);
+        }
+
+        // ============================================
+        // TEST SUITE 3: Sort Functionality
+        // ============================================
+        function testSortPriceLowHigh() {
+            const select = document.querySelector('#sort-select');
+            if (!select) {
+                skipLog('TC-3.1: Price Low→High sort', 'Cannot test - #sort-select not found');
+                return;
+            }
+            select.value = 'price-asc';
+            select.dispatchEvent(new Event('change'));
+            
+            const prices = Array.from(document.querySelectorAll('.price')).map(el => 
+                parseFloat(el.textContent.replace('$', ''))
+            );
+            if (prices.length < 2) {
+                skipLog('TC-3.1: Price Low→High sort', 'Not enough products to test');
+                return;
+            }
+            const isSorted = prices[0] <= prices[prices.length - 1];
+            log('TC-3.1: Price Low→High sort', isSorted, `First: $${prices[0]}, Last: $${prices[prices.length - 1]}`);
+        }
+
+        function testSortPriceHighLow() {
+            const select = document.querySelector('#sort-select');
+            if (!select) {
+                skipLog('TC-3.2: Price High→Low sort', 'Cannot test - #sort-select not found');
+                return;
+            }
+            select.value = 'price-desc';
+            select.dispatchEvent(new Event('change'));
+            
+            const prices = Array.from(document.querySelectorAll('.price')).map(el => 
+                parseFloat(el.textContent.replace('$', ''))
+            );
+            if (prices.length < 2) {
+                skipLog('TC-3.2: Price High→Low sort', 'Not enough products to test');
+                return;
+            }
+            const isSorted = prices[0] >= prices[prices.length - 1];
+            log('TC-3.2: Price High→Low sort', isSorted, `First: $${prices[0]}, Last: $${prices[prices.length - 1]}`);
+        }
+
+        function testSortNameAZ() {
+            const select = document.querySelector('#sort-select');
+            if (!select) {
+                skipLog('TC-3.3: Name A-Z sort', 'Cannot test - #sort-select not found');
+                return;
+            }
+            select.value = 'name-asc';
+            select.dispatchEvent(new Event('change'));
+            
+            const names = Array.from(document.querySelectorAll('.dessert-type')).map(el => el.textContent);
+            if (names.length < 2) {
+                skipLog('TC-3.3: Name A-Z sort', 'Not enough products to test');
+                return;
+            }
+            const isSorted = names[0].localeCompare(names[names.length - 1]) <= 0;
+            log('TC-3.3: Name A-Z sort', isSorted, `First: ${names[0]}, Last: ${names[names.length - 1]}`);
+        }
+
+        function testSortNameZA() {
+            const select = document.querySelector('#sort-select');
+            if (!select) {
+                skipLog('TC-3.4: Name Z-A sort', 'Cannot test - #sort-select not found');
+                return;
+            }
+            select.value = 'name-desc';
+            select.dispatchEvent(new Event('change'));
+            
+            const names = Array.from(document.querySelectorAll('.dessert-type')).map(el => el.textContent);
+            if (names.length < 2) {
+                skipLog('TC-3.4: Name Z-A sort', 'Not enough products to test');
+                return;
+            }
+            const isSorted = names[0].localeCompare(names[names.length - 1]) >= 0;
+            log('TC-3.4: Name Z-A sort', isSorted, `First: ${names[0]}, Last: ${names[names.length - 1]}`);
+        }
+
+        function testSortDefault() {
+            const select = document.querySelector('#sort-select');
+            if (!select) {
+                skipLog('TC-3.5: Default sort returns original order', 'Cannot test - #sort-select not found');
+                return;
+            }
+            // First record original order
+            const originalNames = Array.from(document.querySelectorAll('.dessert-type')).map(el => el.textContent);
+            
+            // Sort differently
+            select.value = 'price-asc';
+            select.dispatchEvent(new Event('change'));
+            
+            // Back to default
+            select.value = 'default';
+            select.dispatchEvent(new Event('change'));
+            
+            const defaultNames = Array.from(document.querySelectorAll('.dessert-type')).map(el => el.textContent);
+            const match = JSON.stringify(originalNames) === JSON.stringify(defaultNames);
+            log('TC-3.5: Default sort returns original order', match, match ? 'Order restored correctly' : 'Order differs from original');
+        }
+
+        // ============================================
+        // TEST SUITE 4: Filter Compatibility
+        // ============================================
+        function testSortWithFilter() {
+            const select = document.querySelector('#sort-select');
+            const searchInput = document.querySelector('#search-input');
+            if (!select || !searchInput) {
+                skipLog('TC-4.1: Sort works with active filter', 'Cannot test - elements not found');
+                return;
+            }
+            
+            // Apply filter first
+            searchInput.value = 'Waffle';
+            searchInput.dispatchEvent(new Event('input'));
+            
+            // Then sort by price
+            select.value = 'price-asc';
+            select.dispatchEvent(new Event('change'));
+            
+            const products = Array.from(document.querySelectorAll('.dessert-type'));
+            const names = products.map(el => el.textContent);
+            const allContainFilter = names.every(name => name.toLowerCase().includes('waffle'));
+            log('TC-4.1: Sort works with active filter', allContainFilter, `Filtered products: ${names.join(', ')}`);
+            
+            // Reset filter
+            searchInput.value = '';
+            searchInput.dispatchEvent(new Event('input'));
+            select.value = 'default';
+            select.dispatchEvent(new Event('change'));
+        }
+
+        // ============================================
+        // TEST SUITE 5: No Reload
+        // ============================================
+        function testNoPageReload() {
+            const select = document.querySelector('#sort-select');
+            if (!select) {
+                skipLog('TC-5.1: No page reload on sort change', 'Cannot test - #sort-select not found');
+                return;
+            }
+            let reloaded = false;
+            const originalURL = window.location.href;
+            
+            // Monitor for navigation
+            window.addEventListener('beforeunload', () => { reloaded = true; });
+            
+            select.value = 'price-asc';
+            select.dispatchEvent(new Event('change'));
+            
+            // Check if URL changed
+            setTimeout(() => {
+                const noReload = !reloaded && window.location.href === originalURL;
+                log('TC-5.1: No page reload on sort change', noReload, noReload ? 'DOM updated without reload' : 'Page was reloaded');
+            }, 100);
+        }
+
+        // ============================================
+        // TEST SUITE 6: No Persistence
+        // ============================================
+        function testNoLocalStorage() {
+            const select = document.querySelector('#sort-select');
+            if (!select) {
+                skipLog('TC-6.1: No localStorage persistence', 'Cannot test - #sort-select not found');
+                return;
+            }
+            
+            select.value = 'price-asc';
+            select.dispatchEvent(new Event('change'));
+            
+            const sortInStorage = localStorage.getItem('sortOption') || 
+                                   localStorage.getItem('sort-select') ||
+                                   localStorage.getItem('sort');
+            log('TC-6.1: No localStorage persistence', !sortInStorage, sortInStorage ? `Found in localStorage: ${sortInStorage}` : 'No sort value in localStorage');
+            
+            const defaultSelected = select.value === 'default' || select.selectedIndex === 0;
+            log('TC-6.2: Default selected on load', defaultSelected, `Current value: ${select.value}`);
+        }
+
+        // ============================================
+        // Run All Tests
+        // ============================================
+        function runAllTests() {
+            document.getElementById('results').innerHTML = '';
+            testResults.length = 0;
+            
+            // Suite 1: Dropdown exists
+            testDropdownExists();
+            testDropdownVisible();
+            testDropdownPosition();
+            
+            // Suite 2: Options
+            testDropdownOptions();
+            testOptionValues();
+            testOptionTexts();
+            
+            // Suite 3: Sort functionality
+            testSortPriceLowHigh();
+            testSortPriceHighLow();
+            testSortNameAZ();
+            testSortNameZA();
+            testSortDefault();
+            
+            // Suite 4: Filter compatibility
+            testSortWithFilter();
+            
+            // Suite 5: No reload
+            testNoPageReload();
+            
+            // Suite 6: No persistence
+            testNoLocalStorage();
+            
+            // Summary
+            const passed = testResults.filter(r => r.passed === true).length;
+            const failed = testResults.filter(r => r.passed === false).length;
+            const skipped = testResults.filter(r => r.passed === null).length;
+            
+            document.getElementById('summary').innerHTML = 
+                `Results: ${passed} passed, ${failed} failed, ${skipped} skipped (Total: ${testResults.length})`;
+            document.getElementById('summary').style.background = 
+                failed > 0 ? '#c0392b' : (skipped > 0 ? '#f39c12' : '#27ae60');
+        }
+    </script>
+</body>
+</html>
